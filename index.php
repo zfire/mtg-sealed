@@ -96,6 +96,19 @@ if ($format == "sealed")
 
 		});
 	}
+	$finalresult = mysql_query("SELECT number,name FROM cards WHERE number IN (".implode(',',$cards).")");
+	$textcardsnum = array();
+	$textcards = array();
+	$x = 0;
+	while ($row = mysql_fetch_row($finalresult))
+	{
+		if (!in_array($row[1], $textcards))
+		{
+			$textcards[$x] = $row[1];
+			$textcardsnum[$x] = numberofcards($cards,$row[0]);
+			$x++;
+		}
+	}
 	foreach ($cards as $card) {
 			echo '<span><img style="height:370;width:265;" src="pictures/'.$card.'.jpg" title="'.$card.'" /> </span>';
 	}
@@ -114,6 +127,10 @@ if ($format == "sealed")
 		echo '<br>Guild Booster ID:'.$numguild.'';
 		echo '<br>Booster 1 ID:'.$num[0].'<br>Booster 2 ID:'.$num[1].'<br>Booster 3 ID:'.$num[2].'<br>Booster 4 ID:'.$num[3].'<br>Booster 5 ID:'.$num[4];
 	}
+	echo '<br><br><b>List of cards (.MWD format):</b>';
+	for ($i=0; $i < $x; $i++) { 
+		echo '<br>'.$textcardsnum[$i].' [RTR] '.$textcards[$i];
+	}
 }
 else
 {
@@ -121,10 +138,22 @@ else
 	$resultcard = mysql_query("SELECT cards FROM boosters WHERE id='".$num."'");
 	$result = mysql_fetch_row($resultcard);
 	$cards = explode(',',$result[0]);
+	$textcards = array();
+	$x = 0;
+	$finalresult = mysql_query("SELECT name FROM cards WHERE number IN (".implode(',',$cards).")");
+	while ($row = mysql_fetch_row($finalresult))
+	{
+		$textcards[$x] = $row[0];
+		$x++;
+	}
 	foreach ($cards as $card) {
 		echo '<span><img style="height:370;width:265;" src="pictures/'.$card.'.jpg" title="'.$card.'" /> </span>';
 	}
 	echo '<br>Booster ID: '.$num;
+	echo '<br><br><b>List of cards (.MWD format):</b>';
+	for ($i=0; $i < $x; $i++) { 
+		echo '<br>1 [RTR] '.$textcards[$i];
+	}
 }
 function guildpromo($guild)
 {
@@ -149,7 +178,17 @@ function guildpromo($guild)
 			break;
 	}
 }
-
+function numberofcards($array,$card)
+{
+	$i = 0;
+	foreach ($array as $a) {
+		if ($a == $card)
+		{
+			$i++;
+		}
+	}
+	return $i;
+}
 ?>
 </body>
 </html>
